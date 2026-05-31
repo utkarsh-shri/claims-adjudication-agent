@@ -20,7 +20,10 @@ def process_claim(request: Request, claim_req: ClaimRequest, username: str = Dep
     try:
         final_state = claims_graph.invoke(state)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        print(f"Graph execution failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Graph error: {str(e)}")
         
     # Save claim to Supabase
     claim_data = {

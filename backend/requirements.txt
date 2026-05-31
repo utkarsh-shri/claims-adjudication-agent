@@ -7,6 +7,6 @@ supabase
 python-dotenv
 pydantic
 pytest==7.4.0
-httpx==0.24.1
+httpx>=0.26.0
 PyJWT==2.8.0
 slowapi==0.1.9
