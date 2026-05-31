@@ -10,7 +10,7 @@ def get_pending():
     pending_claims = []
     for row in data:
         pending_claims.append(PendingClaim(
-            id=row['id'],
+            id=str(row.get('review_id', 'unknown')),
             claim_id=row['claim_id'],
             reviewer_id=row.get('reviewer_id'),
             review_reason=row.get('review_reason'),

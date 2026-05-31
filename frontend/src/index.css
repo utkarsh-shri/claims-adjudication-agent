@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-green-100: #dcfce7;
+  --color-green-600: #16a34a;
+  --color-red-100: #fee2e2;
+  --color-red-600: #dc2626;
+  --color-yellow-100: #fef9c3;
+  --color-yellow-600: #ca8a04;
+  
+  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body {
+  background-color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

@@ -36,7 +36,14 @@ def process_claim(request: ClaimRequest):
         'reasoning_steps': final_state.get('reasoning_steps', [])
     }
     
-    save_claim(claim_data)
+    try:
+        save_claim(claim_data)
+        if claim_data['status'] == 'PENDING_HUMAN_REVIEW':
+            from database.queries import add_to_review_queue
+            add_to_review_queue(claim_data['claim_id'], "Flagged by AI Agent for manual review.")
+    except Exception as e:
+        print(f"Failed to save claim to DB: {e}")
+        raise HTTPException(status_code=400, detail=f"Database error (check Member ID / NDC): {str(e)}")
     
     return ClaimResponse(
         claim_id=final_state['claim_id'],

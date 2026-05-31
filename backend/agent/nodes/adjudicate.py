@@ -13,24 +13,34 @@ def adjudicate(state: ClaimState) -> ClaimState:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",
+            model="llama-3.1-8b-instant",
             messages=[{
                 "role": "user",
-                "content": f"""You are a pharmacy claims adjudication engine.
-Based on these check results, give a final decision.
+                "content": f"""You are an advanced AI pharmacy claims adjudication engine.
+Your job is to verify both the SYSTEM CHECKS and the CLINICAL APPROPRIATENESS of the claim.
 
+CLAIM DETAILS:
+- Drug: {state.get('drug_name', 'Unknown')}
+- Quantity: {state.get('quantity')}
+- Days Supply: {state.get('days_supply')}
+- Diagnosis Code: {state.get('diagnosis_code')}
+
+SYSTEM CHECKS:
 {summary}
 
 Benefit calculation: {json.dumps(state.get('benefit_result', {}))}
+
+CRITICAL RULES:
+1. If the Quantity is absurdly high for the Days Supply (e.g., > 100 pills for 30 days), you MUST output PENDING_HUMAN_REVIEW with low confidence (< 0.5).
+2. If the Diagnosis Code does not logically match the Drug (e.g., a cholesterol drug for a broken arm), you MUST output PENDING_HUMAN_REVIEW with low confidence (< 0.5).
+3. If all system checks passed AND the clinical details make sense, output APPROVED with high confidence (> 0.9).
 
 Respond in JSON only:
 {{
   "decision": "APPROVED" or "PENDING_HUMAN_REVIEW",
   "confidence": 0.0-1.0,
-  "reasoning": "one sentence"
-}}
-
-Use PENDING_HUMAN_REVIEW if confidence < 0.85 or any result is ambiguous."""
+  "reasoning": "one sentence explaining your clinical reasoning"
+}}"""
             }],
             response_format={"type": "json_object"},
             temperature=0.1

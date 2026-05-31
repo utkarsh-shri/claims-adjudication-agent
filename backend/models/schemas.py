@@ -27,7 +27,7 @@ class ReviewDecisionRequest(BaseModel):
     override_reason: Optional[str] = None
 
 class PendingClaim(BaseModel):
-    id: int
+    id: str
     claim_id: str
     reviewer_id: Optional[str] = None
     review_reason: Optional[str] = None
