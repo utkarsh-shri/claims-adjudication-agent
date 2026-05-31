@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (username, password) => {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, { username, password });
       setToken(response.data.access_token);
