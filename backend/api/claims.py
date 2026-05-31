@@ -5,6 +5,9 @@ from database.queries import save_claim
 from api.auth import get_current_user
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
@@ -20,9 +23,7 @@ def process_claim(request: Request, claim_req: ClaimRequest, username: str = Dep
     try:
         final_state = claims_graph.invoke(state)
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(f"Graph execution failed: {e}")
+        logger.exception("Graph execution failed for claim %s", state.get('claim_id'))
         raise HTTPException(status_code=500, detail=f"Graph error: {str(e)}")
         
     # Save claim to Supabase
@@ -50,7 +51,7 @@ def process_claim(request: Request, claim_req: ClaimRequest, username: str = Dep
             from database.queries import add_to_review_queue
             add_to_review_queue(claim_data['claim_id'], "Flagged by AI Agent for manual review.")
     except Exception as e:
-        print(f"Failed to save claim to DB: {e}")
+        logger.exception("Failed to save claim %s to database", claim_data.get('claim_id'))
         raise HTTPException(status_code=400, detail=f"Database error (check Member ID / NDC): {str(e)}")
     
     return ClaimResponse(

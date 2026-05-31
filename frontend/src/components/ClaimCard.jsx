@@ -2,32 +2,48 @@ import React from 'react';
 import DecisionBadge from './DecisionBadge';
 import StepTimeline from './StepTimeline';
 import { approveClaim, rejectClaim } from '../api/claims';
+import { useAuth } from '../context/AuthContext';
 
 const ClaimCard = ({ claim, onReviewComplete }) => {
   const [expanded, setExpanded] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const { token } = useAuth();
+
+  // Decode the username from the JWT token for the audit trail
+  const reviewerUsername = React.useMemo(() => {
+    if (!token) return 'unknown_reviewer';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || 'unknown_reviewer';
+    } catch {
+      return 'unknown_reviewer';
+    }
+  }, [token]);
   
   const claimData = claim.claims || {};
   const steps = claimData.reasoning_steps || [];
 
   const handleApprove = async () => {
     setLoading(true);
+    setError('');
     try {
-      await approveClaim(claimData.claim_id, 'HUMAN_REVIEWER_1');
+      await approveClaim(claimData.claim_id, reviewerUsername);
       onReviewComplete();
     } catch (e) {
-      alert("Error approving claim: " + e.message);
+      setError('Error approving claim: ' + (e.response?.data?.detail || e.message));
       setLoading(false);
     }
   };
 
   const handleReject = async () => {
     setLoading(true);
+    setError('');
     try {
-      await rejectClaim(claimData.claim_id, 'HUMAN_REVIEWER_1', 'Manual reviewer override');
+      await rejectClaim(claimData.claim_id, reviewerUsername, 'Manual reviewer override');
       onReviewComplete();
     } catch (e) {
-      alert("Error rejecting claim: " + e.message);
+      setError('Error rejecting claim: ' + (e.response?.data?.detail || e.message));
       setLoading(false);
     }
   };
@@ -54,6 +70,12 @@ const ClaimCard = ({ claim, onReviewComplete }) => {
           <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-inner mb-6">
             <StepTimeline steps={steps} />
           </div>
+
+          {error && (
+            <div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+              {error}
+            </div>
+          )}
 
           <div className="flex gap-4">
             <button 

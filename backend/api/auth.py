@@ -9,7 +9,14 @@ from typing import Optional
 router = APIRouter()
 security = HTTPBearer()
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'fallback_secret_key_for_local_dev')
+JWT_SECRET = os.environ.get('JWT_SECRET')
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
+
+if not JWT_SECRET:
+    if ENVIRONMENT == 'production':
+        raise RuntimeError("FATAL: JWT_SECRET environment variable is not set. Refusing to start in production.")
+    else:
+        JWT_SECRET = 'fallback_secret_key_for_local_dev_only'
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 

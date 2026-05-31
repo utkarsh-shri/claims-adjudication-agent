@@ -7,7 +7,16 @@ import { ArrowLeft } from 'lucide-react';
 const AgentTrace = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const result = location.state?.result;
+
+  // Fix #9: Persist result in sessionStorage so page refresh doesn't lose data
+  const result = React.useMemo(() => {
+    if (location.state?.result) {
+      sessionStorage.setItem('lastTraceResult', JSON.stringify(location.state.result));
+      return location.state.result;
+    }
+    const saved = sessionStorage.getItem('lastTraceResult');
+    return saved ? JSON.parse(saved) : null;
+  }, [location.state]);
 
   if (!result) {
     return (

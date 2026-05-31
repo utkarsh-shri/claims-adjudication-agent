@@ -17,6 +17,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Fix #4: Auto-redirect to /login on 401 (expired/invalid token)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const processClaim = async (claimData) => {
   const response = await api.post('/api/claims/process', claimData);
   return response.data;

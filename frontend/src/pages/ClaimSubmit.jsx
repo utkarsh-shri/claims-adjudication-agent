@@ -6,6 +6,7 @@ import { Activity } from 'lucide-react';
 const ClaimSubmit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     claim_id: `CLM-${Math.floor(Math.random() * 1000000)}`,
     member_id: 'MBR-0000001',
@@ -24,13 +25,13 @@ const ClaimSubmit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const result = await processClaim(formData);
-      // Pass the result state to the next page
       navigate('/trace', { state: { result } });
     } catch (error) {
-      alert("Error processing claim. Check console or make sure backend is running.");
-      console.error(error);
+      const detail = error.response?.data?.detail || 'Check the console or make sure the backend is running.';
+      setError(`Error processing claim: ${detail}`);
       setLoading(false);
     }
   };
@@ -88,6 +89,12 @@ const ClaimSubmit = () => {
             </div>
           </div>
           
+          {error && (
+            <div className="mt-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center">
+              {error}
+            </div>
+          )}
+
           <div className="pt-4">
             <button
               type="submit"

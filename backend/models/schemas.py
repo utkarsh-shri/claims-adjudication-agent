@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -8,8 +8,8 @@ class ClaimRequest(BaseModel):
     drug_ndc: str
     drug_name: str
     prescriber_npi: str
-    quantity: float
-    days_supply: int
+    quantity: float = Field(..., gt=0, le=1000, description="Must be between 1 and 1000")
+    days_supply: int = Field(..., gt=0, le=365, description="Must be between 1 and 365")
     diagnosis_code: str
 
 class ClaimResponse(BaseModel):
