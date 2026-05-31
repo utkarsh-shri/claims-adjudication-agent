@@ -1,8 +1,8 @@
 fastapi
 uvicorn
 groq
-langgraph
-langchain-core
+langgraph==0.2.35
+langchain-core==0.3.86
 supabase
 python-dotenv
 pydantic
