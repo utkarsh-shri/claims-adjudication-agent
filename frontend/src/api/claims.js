@@ -9,6 +9,14 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const processClaim = async (claimData) => {
   const response = await api.post('/api/claims/process', claimData);
   return response.data;

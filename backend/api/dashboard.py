@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.schemas import DashboardResponse, PendingClaim
 from database.queries import get_pending_review
+from api.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/pending", response_model=DashboardResponse)
-def get_pending():
+def get_pending(username: str = Depends(get_current_user)):
     data = get_pending_review()
     pending_claims = []
     for row in data:

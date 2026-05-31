@@ -6,5 +6,7 @@ langchain-core
 supabase
 python-dotenv
 pydantic
-pytest
-httpx
+pytest==7.4.0
+httpx==0.24.1
+PyJWT==2.8.0
+slowapi==0.1.9

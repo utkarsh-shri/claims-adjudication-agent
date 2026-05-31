@@ -1,14 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Request
 from models.schemas import ClaimRequest, ClaimResponse
 from agent.graph import claims_graph
 from database.queries import save_claim
+from api.auth import get_current_user
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/process", response_model=ClaimResponse)
-def process_claim(request: ClaimRequest):
+@limiter.limit("5/minute")
+def process_claim(request: Request, claim_req: ClaimRequest, username: str = Depends(get_current_user)):
     # Initialize state
-    state = request.model_dump()
+    state = claim_req.model_dump()
     state['reasoning_steps'] = []
     
     # Run graph
